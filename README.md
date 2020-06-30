@@ -228,6 +228,10 @@ Latest versions of VS code and SWI-Prolog/ECLiPSe installed.
 
       How to trigger the linter: onType or onSave or never. 'onType' means linting is in nearly real time manner (controlled by next setting: prolog.linter.delay) whileas 'onSave' linter is called when saving the document. 'never' disables the linter.
 
+    * "prolog.linter.arguments": "[]"
+
+      Extra arguments to invoke prolog executable durring linting. For example to add  to custom load paths.
+
     * "prolog.linter.delay": 500
 
       The milliseconds to delay when using onType trigger, that is, when pausing over this milliseconds between two key strokes the linter would be triggered.

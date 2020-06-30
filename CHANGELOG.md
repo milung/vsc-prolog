@@ -1,5 +1,13 @@
 # Changelog
 
+## []
+* the linter to execute in workspaceFolder directory instead of workspace directory. It solves issues with modules loading in multi-folder workspaces
+* added support for 'prolog.linter.arguments'. Setting this configuration allows to add additional path alliases to load more modular projects.
+* package.json updated and adapted to changes in vscode api
+* language and snippet files are now copy of the swi file. They seemed to be symlinks which was not working already in the published extension.
+* minor cosmetic changes
+
+
 ## [0.8.23]
 * fixed some bugs
 ## [0.8.20]

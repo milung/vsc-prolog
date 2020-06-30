@@ -22,7 +22,8 @@ import {
   Uri,
   window,
   workspace,
-  WorkspaceEdit
+  WorkspaceEdit,
+  ConfigurationTarget
 } from "vscode";
 import { Utils, IPredicate } from "../utils/utils";
 // import { basename, extname, resolve } from "path";
@@ -211,7 +212,7 @@ export default class PrologLinter implements CodeActionProvider {
     context.diagnostics.forEach(diagnostic => {
       let regex = /Predicate (.+) not defined/;
       let match = diagnostic.message.match(regex);
-      if (match[1]) {
+      if (match && match[1]) {
         let pred = match[1];
         let modules = Utils.getPredModules(pred);
         if (modules.length > 0) {
@@ -286,12 +287,16 @@ export default class PrologLinter implements CodeActionProvider {
     this.diagnostics = {};
     this.sortedDiagIndex = {};
     this.diagnosticCollection.delete(textDocument.uri);
-    let options = workspace.rootPath
-      ? { cwd: workspace.rootPath }
+    const workspaceFolder = workspace.getWorkspaceFolder(textDocument.uri);
+    let options = workspaceFolder && workspaceFolder.uri.fsPath
+      ? { cwd: workspaceFolder.uri.fsPath }
       : undefined;
 
-    let args: string[] = [],
-      goals: string = "";
+    // linterArguments will be scope specific in multifolder workspaces 
+    let section = workspace.getConfiguration("prolog", workspaceFolder);
+    let args = section.get<string[]>("linter.arguments",[]);
+    
+    let goals: string = "";
     let lineErr: string = "";
     let docTxt = textDocument.getText();
     let docTxtEsced = jsesc(docTxt, { quotes: "double" });
@@ -299,10 +304,10 @@ export default class PrologLinter implements CodeActionProvider {
     switch (Utils.DIALECT) {
       case "swi":
         if (this.trigger === RunTrigger.onSave) {
-          args = ["-g", "halt", fname];
+          args = ["-g", "halt", fname, ...args];
         }
         if (this.trigger === RunTrigger.onType) {
-          args = ["-q"];
+          args = ["-q", ...args];
           goals = `
             open_string("${docTxtEsced}", S),
             load_files('${fname}', [stream(S),if(true)]).
@@ -320,7 +325,7 @@ export default class PrologLinter implements CodeActionProvider {
           cd("${fdir}"),
           load_modules_from_file('${file}'),
           compile('${file}', [debug:off]),halt)`;
-          args = ["-e", goals];
+          args = ["-e", goals, ...args];
         }
         if (this.trigger === RunTrigger.onType) {
           goals = `(cd("${dir}"),
@@ -333,8 +338,7 @@ export default class PrologLinter implements CodeActionProvider {
 
       default:
         break;
-    }
-
+    }    
     spawn(this.executable, args, options)
       .on("process", process => {
         if (process.pid) {
@@ -501,8 +505,10 @@ export default class PrologLinter implements CodeActionProvider {
 
   private loadConfiguration(): void {
     let section = workspace.getConfiguration("prolog");
+
     if (section) {
       this.executable = path.resolve(section.get<string>("executablePath", "swipl"));
+      
       if (Utils.LINTERTRIGGER === "onSave") {
         this.trigger = RunTrigger.onSave;
       } else if (Utils.LINTERTRIGGER === "onType") {

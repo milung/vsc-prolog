@@ -1,7 +1,8 @@
-out/**/*.js
-out/**/*.map
+out
 node_modules
 node_trace.1.log
 vsc-extension-quickstart.md
 src/**/*.js
 .vscode/symbols.json
+.vscode-test
+*.vsix

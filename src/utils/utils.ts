@@ -63,7 +63,7 @@ export class Utils {
     if (Utils.snippets) {
       return;
     }
-    let snippetsPath = context.extensionPath + "/snippets/prolog.json";
+    let snippetsPath = `${context.extensionPath}/snippets/prolog.json`;
     let snippets = fs.readFileSync(snippetsPath, "utf8").toString();
     Utils.snippets = JSON.parse(snippets);
   }
@@ -381,8 +381,10 @@ export class Utils {
   }
 
   public static insertBuiltinsToSyntaxFile(context: ExtensionContext) {
+    const section = workspace.getConfiguration("prolog");
+    const dialect = section.get<string>("dialect");
     let syntaxFile = path.resolve(
-      context.extensionPath + "/syntaxes/prolog.tmLanguage.yaml"
+      `${context.extensionPath}/syntaxes/prolog.tmLanguage.yaml`
     );
     YAML.load(syntaxFile, obj => {
       let builtins: string = Utils.getBuiltinNames().join("|");

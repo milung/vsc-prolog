@@ -2,12 +2,12 @@
     "name": "vsc-prolog",
     "displayName": "VSC-Prolog",
     "description": "Support for Prolog language",
-    "version": "0.8.23",
+    "version": "0.8.24",
     "publisher": "arthurwang",
     "icon": "images/vsplogo.png",
     "license": "MIT",
     "engines": {
-        "vscode": "^1.16.0"
+        "vscode": "^1.46.0"
     },
     "categories": [
         "Programming Languages",
@@ -152,15 +152,15 @@
                 }
             ]
         },
+        "breakpoints": [
+            {
+                "language": "prolog"
+            }
+        ],
         "debuggers": [
             {
                 "type": "prolog",
                 "label": "Prolog",
-                "enableBreakpointsFor": {
-                    "languageIds": [
-                        "prolog"
-                    ]
-                },
                 "program": "./out/src/features/prologDebugSession.js",
                 "runtime": "node",
                 "configurationAttributes": {
@@ -301,6 +301,12 @@
                     "default": "onType",
                     "description": "How to trigger the linter."
                 },
+                "prolog.linter.arguments": {
+                    "type": "array",
+                    "default": [],
+                    "description": "Extra command line arguments for prolog executable durring linter",
+                    "scope": "machine-overridable"
+                },
                 "prolog.linter.delay": {
                     "type": "number",
                     "default": 500,
@@ -335,35 +341,41 @@
         }
     },
     "scripts": {
-        "vscode:prepublish": "tsc -p ./",
+        "build": "tsc -p ./",
+        "prevscode:package": "npm run build",
+        "vscode:package": "node ./node_modules/vsce/out/vsce package",
+        "prevscode:install": "npm run vscode:package",
+        "vscode:install": "node ./node_modules/cross-var code --install-extension vsc-prolog-$npm_package_version.vsix",
+        "vscode:reload": "node ./node_modules/cross-var code --uninstall-extension vsc-prolog-$npm_package_version.vsix",
+        "postvscode:reload": "npm run vscode:install",
         "compile": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "node ./node_modules/vscode/bin/test",
         "syntax4swi": "yaml2json --pretty --save ./syntaxes/prolog.swi.tmLanguage.yaml",
         "syntax4ecl": "yaml2json --pretty --save ./syntaxes/prolog.ecl.tmLanguage.yaml",
         "pkgvars": "node ./node_modules/vscode/bin/install"
     },
     "devDependencies": {
-        "@types/bluebird": "^3.5.22",
-        "@types/mocha": "^2.2.43",
-        "@types/node": "^8.0.28",
-        "cross-var": "^1.0.3",
-        "typescript": "^2.5.2"
+        "@types/bluebird": "^3.5.32",
+        "@types/mocha": "^2.2.48",
+        "@types/node": "^8.10.61",
+        "@types/vscode": "^1.46.0",
+        "cross-var": "^1.1.0",
+        "typescript": "^2.9.2",
+        "vsce": "^1.77.0",
+        "vscode-test": "^1.4.0"
     },
     "dependencies": {
-        "command-exists": "^1.2.2",
+        "command-exists": "^1.2.9",
         "find-in-files": "^0.4.0",
         "fs-extra-plus": "^0.1.3",
         "js-string-escape": "^1.0.1",
-        "jsesc": "^2.5.1",
-        "node": "^8.3.0",
+        "jsesc": "^2.5.2",
+        "node": "^8.17.0",
         "os": "^0.1.1",
         "process-promises": "^1.0.0",
-        "q": "^1.5.0",
+        "q": "^1.5.1",
         "readline-promise": "0.0.1",
         "split": "^1.0.1",
-        "vscode": "^1.1.6",
-        "vscode-debugadapter": "^1.23.0",
+        "vscode-debugadapter": "^1.41.0",
         "yamljs": "^0.3.0"
     }
 }
